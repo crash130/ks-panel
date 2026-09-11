@@ -15,7 +15,10 @@ export const metadata: Metadata = {
     template: `%s · ${BRAND.productName}`,
   },
   description: `${BRAND.claim} — panel warsztatu ${BRAND.domain}`,
-  icons: { icon: "/brand/favicon.svg" },
+  icons: {
+    icon: [{ url: "/brand/favicon.png", type: "image/png" }, { url: "/brand/logo-mono-b.png", type: "image/png" }],
+    apple: "/brand/favicon.png",
+  },
 };
 
 export const dynamic = "force-dynamic";

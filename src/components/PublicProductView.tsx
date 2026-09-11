@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BRAND, formatPhoneDisplay } from "@/lib/brand";
 import { formatDate, formatMoney } from "@/lib/format";
-import { KsMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import type { SpecSection } from "@/lib/paste-parser";
 
 export function PublicProductView({
@@ -34,16 +34,9 @@ export function PublicProductView({
   return (
     <div className="ks-cloud min-h-screen">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-white px-6 py-4">
-        <div className="flex items-center gap-2">
-          <KsMark className="h-8 w-auto" />
-          <div>
-            <div className="text-sm font-extrabold leading-tight">
-              komputer
-              <br />
-              serwis
-            </div>
-            <div className="text-xs text-muted">{BRAND.domain} · oferta dla klienta</div>
-          </div>
+        <div>
+          <Logo size="sm" />
+          <div className="mt-1 text-xs text-muted">{BRAND.domain} · oferta dla klienta</div>
         </div>
         <div className="text-right font-extrabold text-primary">
           Oferta {offer.number}

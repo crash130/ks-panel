@@ -2,7 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test("login and ofertomat smoke", async ({ page }) => {
   await page.goto("/login");
-  await expect(page.getByRole("heading", { name: "Panel KS" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "KS komputer serwis" })).toBeVisible();
+  await expect(page.locator('img[src="/brand/logo-mono-a.png"]')).toHaveCount(1);
   await expect(page.locator("body")).not.toContainText("Electric Trust");
   await expect(page.locator("body")).not.toContainText("Volta");
   await page.getByLabel("E-mail").fill("wlasciciel@demo.ks.local");

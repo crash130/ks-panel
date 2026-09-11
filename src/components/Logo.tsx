@@ -1,31 +1,44 @@
-import { BRAND } from "@/lib/brand";
+export const LOGO_LOCKUP_SRC = "/brand/logo-mono-a.png";
+export const LOGO_MARK_SRC = "/brand/logo-mono-b.png";
 
-export function KsMark({ className = "h-9 w-auto" }: { className?: string }) {
+const SIZE: Record<"sm" | "md" | "lg", string> = {
+  sm: "h-8",
+  md: "h-10",
+  lg: "h-12",
+};
+
+/** Real PNG lockup (KS emblem + stacked komputer / serwis). Do not redraw as SVG. */
+export function Logo({
+  size = "md",
+  onDark = false,
+  className = "",
+}: {
+  size?: "sm" | "md" | "lg";
+  onDark?: boolean;
+  className?: string;
+}) {
   return (
-    <svg viewBox="0 0 72 40" className={className} aria-hidden="true" role="img">
-      <title>KS</title>
-      <path
-        fill="#0A1F44"
-        d="M2 2h11v36H2zM16 2l18 18L16 38h13l18-18L29 2H16z"
-      />
-      <path
-        fill="#0A1F44"
-        d="M50 2c-9 0-16 4.2-16 12.2 0 6.4 5.2 9.4 12.4 11.2l5.2 1.4c3.6.9 5.6 2.2 5.6 4.8 0 3.1-3.1 5-8.2 5-4.8 0-8.6-1.6-11.2-4.2L30.4 39c4.2 4.2 11 6.2 18.4 6.2C60.4 45.2 70 39.8 70 30.4c0-6.6-5-10-13.2-12.2l-5.4-1.5c-3.4-.8-5-2.1-5-4.2 0-2.6 2.5-4.3 7-4.3 4.2 0 7.8 1.3 10.2 3.4L70 5.2C65.6 3 58.4 2 50 2z"
-      />
-    </svg>
+    <img
+      src={LOGO_LOCKUP_SRC}
+      alt="KS komputer serwis"
+      className={`${SIZE[size]} w-auto max-w-[240px] object-contain object-left ${onDark ? "brightness-0 invert" : ""} ${className}`.trim()}
+    />
   );
 }
 
-export function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const mark = size === "lg" ? "h-12 w-auto" : size === "sm" ? "h-7 w-auto" : "h-9 w-auto";
-  const text = size === "lg" ? "text-[18px]" : "text-[15px]";
+/** Real PNG emblem only (favicon / small mark). */
+export function KsMark({
+  className = "h-9 w-auto",
+  onDark = false,
+}: {
+  className?: string;
+  onDark?: boolean;
+}) {
   return (
-    <div className="flex items-center gap-2.5">
-      <KsMark className={mark} />
-      <div className={`leading-[0.95] font-extrabold text-navy ${text}`}>
-        <div>{BRAND.wordmarkTop}</div>
-        <div>{BRAND.wordmarkBottom}</div>
-      </div>
-    </div>
+    <img
+      src={LOGO_MARK_SRC}
+      alt=""
+      className={`${className} object-contain ${onDark ? "brightness-0 invert" : ""}`.trim()}
+    />
   );
 }

@@ -1,4 +1,5 @@
 import { BRAND, formatPhoneDisplay } from "@/lib/brand";
+import { brandPngDataUri } from "@/lib/brand-assets";
 import { formatDate, formatMoney, escapeHtml } from "@/lib/format";
 import type { SpecSection } from "@/lib/paste-parser";
 
@@ -57,6 +58,8 @@ export function renderOfferHtml(offer: PublicOffer, opts?: { embedImages?: Recor
     })
     .join("");
 
+  const logoSrc = brandPngDataUri("logo-mono-a.png");
+
   return `<!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -68,7 +71,7 @@ export function renderOfferHtml(offer: PublicOffer, opts?: { embedImages?: Recor
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,sans-serif;background:var(--cloud);color:var(--navy)}
 .top{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}
 .brand{display:flex;align-items:center;gap:10px}
-.brand b{font-size:13px;line-height:.95;display:block}
+.brand img{height:40px;width:auto;display:block}
 .meta{text-align:right;color:var(--primary);font-weight:800}
 .meta small{display:block;color:var(--muted);font-weight:500}
 .wrap{max-width:1080px;margin:0 auto;padding:28px 16px 64px}
@@ -115,9 +118,8 @@ a{color:var(--primary)}
 <body>
 <header class="top">
   <div class="brand">
-    <svg width="54" height="32" viewBox="0 0 72 40" aria-hidden="true"><path fill="#0A1F44" d="M2 2h11v36H2zM16 2l18 18L16 38h13l18-18L29 2H16z"/><path fill="#0A1F44" d="M50 2c-9 0-16 4.2-16 12.2 0 6.4 5.2 9.4 12.4 11.2l5.2 1.4c3.6.9 5.6 2.2 5.6 4.8 0 3.1-3.1 5-8.2 5-4.8 0-8.6-1.6-11.2-4.2L30.4 39c4.2 4.2 11 6.2 18.4 6.2C60.4 45.2 70 39.8 70 30.4c0-6.6-5-10-13.2-12.2l-5.4-1.5c-3.4-.8-5-2.1-5-4.2 0-2.6 2.5-4.3 7-4.3 4.2 0 7.8 1.3 10.2 3.4L70 5.2C65.6 3 58.4 2 50 2z"/></svg>
-    <div><b>komputer</b><b>serwis</b>
-      <small style="color:#5B6B82;font-weight:500">${escapeHtml(BRAND.domain)} · oferta dla klienta</small>
+    <img src="${logoSrc}" alt="KS komputer serwis" height="40">
+    <div><small style="color:#5B6B82;font-weight:500">${escapeHtml(BRAND.domain)} · oferta dla klienta</small>
     </div>
   </div>
   <div class="meta">Oferta ${escapeHtml(offer.number)}<small>Ważna do ${escapeHtml(formatDate(offer.validUntil))}</small></div>

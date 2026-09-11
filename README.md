@@ -4,6 +4,9 @@ Panel serwisowy **KS** dla salonu [komputerserwis.pl](https://komputerserwis.pl)
 
 Produkt nazywa się **KS**. Nie używamy nazwy marketingowej palety kolorów w interfejsie.
 
+Logo: pliki rastrowe `public/brand/logo-mono-a.png` (sygnatura KS + «komputer / serwis») i `logo-mono-b.png` (sam znak KS). UI, PDF i eksport HTML wstawiają te PNG — bez odrysowywania logo ścieżkami SVG.
+
+
 ## Wymagania
 
 - Node.js 22+

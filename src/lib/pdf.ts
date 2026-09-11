@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import PDFDocument from "pdfkit";
 import { BRAND, formatPhoneDisplay } from "@/lib/brand";
+import { brandPngPath } from "@/lib/brand-assets";
 import { formatDate, formatMoney } from "@/lib/format";
 import { JOB_STATUS_LABEL } from "@/lib/status";
 import type { SpecSection } from "@/lib/paste-parser";
@@ -18,12 +19,15 @@ function fonts() {
 
 function header(doc: PDFKit.PDFDocument, title: string, subtitle?: string) {
   const f = fonts();
+  const lockup = brandPngPath("logo-mono-a.png");
   doc.rect(0, 0, doc.page.width, 8).fill("#0B6EFD");
-  doc.fillColor("#0A1F44").font(f.bold).fontSize(16).text("KS  komputer serwis", 48, 28);
-  doc.font(f.regular).fontSize(8).fillColor("#5B6B82").text(BRAND.claim, 48, 48);
-  doc.fillColor("#0A1F44").font(f.bold).fontSize(14).text(title, 48, 68);
+  if (fs.existsSync(lockup)) {
+    doc.image(lockup, 48, 18, { height: 32 });
+  }
+  doc.font(f.regular).fontSize(8).fillColor("#5B6B82").text(BRAND.claim, 48, 56);
+  doc.fillColor("#0A1F44").font(f.bold).fontSize(14).text(title, 48, 74);
   if (subtitle) {
-    doc.font(f.regular).fontSize(9).fillColor("#5B6B82").text(subtitle, 48, 88);
+    doc.font(f.regular).fontSize(9).fillColor("#5B6B82").text(subtitle, 48, 94);
   }
 }
 
@@ -69,7 +73,7 @@ export async function pdfIntake(job: {
   const f = fonts();
   header(doc, "Protokół przyjęcia sprzętu", job.code);
   doc.font(f.regular).fontSize(10).fillColor("#0A1F44");
-  let y = 110;
+  let y = 118;
   const line = (label: string, value: string) => {
     doc.font(f.bold).text(label, 48, y, { width: 160, continued: false });
     doc.font(f.regular).text(value || "—", 210, y, { width: 340 });
@@ -114,7 +118,7 @@ export async function pdfRelease(job: {
   const doc = new PDFDocument({ size: "A4", margin: 48 });
   const f = fonts();
   header(doc, "Protokół wydania sprzętu", job.code);
-  let y = 110;
+  let y = 118;
   const line = (label: string, value: string) => {
     doc.font(f.bold).fontSize(10).fillColor("#0A1F44").text(label, 48, y);
     doc.font(f.regular).text(value || "—", 210, y, { width: 340 });
@@ -164,8 +168,8 @@ export async function pdfOffer(offer: {
   const f = fonts();
   header(doc, `Oferta ${offer.number}`, offer.title);
   doc.font(f.regular).fontSize(10).fillColor("#0A1F44");
-  doc.text(`Klient: ${offer.clientName}`, 48, 110);
-  doc.text(`Ważna do: ${formatDate(offer.validUntil)}`, 48, 126);
+  doc.text(`Klient: ${offer.clientName}`, 48, 118);
+  doc.text(`Ważna do: ${formatDate(offer.validUntil)}`, 48, 134);
 
   if (offer.product) {
     doc.font(f.bold).fontSize(13).text(offer.product.title, 48, 150, { width: 500 });
@@ -246,6 +250,10 @@ export async function pdfLabels(job: {
     const x = 24 + col * (w + 12);
     const y = 24 + row * (h + 12);
     doc.roundedRect(x, y, w, h, 8).strokeColor("#0B6EFD").lineWidth(1.2).stroke();
+    const mark = brandPngPath("logo-mono-b.png");
+    if (fs.existsSync(mark)) {
+      doc.image(mark, x + w - 72, y + 12, { height: 18 });
+    }
     doc.font(f.bold).fontSize(16).fillColor("#0A1F44").text(job.code, x + 12, y + 12);
     doc.font(f.regular).fontSize(9).fillColor("#5B6B82").text(job.clientName, x + 12, y + 36, { width: w - 24 });
     doc.text(`${job.deviceType} ${job.deviceModel}`, x + 12, y + 52, { width: w - 24 });
