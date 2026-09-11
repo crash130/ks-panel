@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+playwright-report
+test-results
+coverage
+uploads/*
+!uploads/.gitkeep
+.env
+.env.local
+*.md
+!README.md
+.embedded-pg
+.pg-data
