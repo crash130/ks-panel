@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createSession, hashPassword, assertOrigin, clientIp, userAgent } from "@/lib/auth";
+import { redirectUrl } from "@/lib/http";
 import { z } from "zod";
 
 const schema = z.object({
@@ -13,11 +14,11 @@ export async function POST(request: Request) {
   try {
     await assertOrigin();
   } catch {
-    return NextResponse.redirect(new URL("/setup?error=csrf", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/setup?error=csrf"), 303);
   }
   const count = await prisma.user.count();
   if (count > 0) {
-    return NextResponse.redirect(new URL("/login", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/login"), 303);
   }
   const form = await request.formData();
   const parsed = schema.safeParse({
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
     password: form.get("password"),
   });
   if (!parsed.success) {
-    return NextResponse.redirect(new URL("/setup?error=1", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/setup?error=1"), 303);
   }
   const user = await prisma.user.create({
     data: {
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
       role: "OWNER",
     },
   });
-  await createSession(user.id, await clientIp(), await userAgent());
-  return NextResponse.redirect(new URL("/pulpit", request.url), 303);
+  const session = await createSession(user.id, await clientIp(), await userAgent());
+  const res = NextResponse.redirect(redirectUrl(request, "/pulpit"), 303);
+  session.apply(res);
+  return res;
 }

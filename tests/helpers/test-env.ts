@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
 
 export const TEST_ENCRYPTION_KEY = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
@@ -46,8 +46,10 @@ export async function ensureTestDatabase(): Promise<string> {
 
   try {
     const EmbeddedPostgres = (await import("embedded-postgres")).default;
+    const databaseDir = path.join(process.cwd(), process.env.KS_PG_DIR ?? ".embedded-pg");
+    rmSync(databaseDir, { recursive: true, force: true });
     const pg = new EmbeddedPostgres({
-      databaseDir: path.join(process.cwd(), process.env.KS_PG_DIR ?? ".embedded-pg"),
+      databaseDir,
       user,
       password,
       port,

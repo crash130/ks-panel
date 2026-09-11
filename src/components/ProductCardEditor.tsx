@@ -75,7 +75,6 @@ export function ProductCardEditor({
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: p.title,
         clientName,
         clientPhone: offer.clientPhone,
         clientEmail: offer.clientEmail,

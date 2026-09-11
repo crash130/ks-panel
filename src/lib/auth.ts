@@ -3,18 +3,18 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { hashToken, randomToken } from "@/lib/crypto";
+import { CSRF_COOKIE, SESSION_COOKIE } from "@/lib/cookies";
 import type { Role, User } from "@prisma/client";
 
-export const SESSION_COOKIE = "ks_session";
-export const CSRF_COOKIE = "ks_csrf";
+export { SESSION_COOKIE, CSRF_COOKIE };
 const SESSION_DAYS = 14;
 
 export type AuthUser = Pick<User, "id" | "email" | "name" | "role" | "active">;
 
-function sessionCookieOptions() {
+export function sessionCookieOptions() {
   const secure = process.env.AUTH_SECURE_COOKIES === "true";
   return {
-    httpOnly: true,
+    httpOnly: true as const,
     secure,
     sameSite: "lax" as const,
     path: "/",
@@ -22,10 +22,10 @@ function sessionCookieOptions() {
   };
 }
 
-function csrfCookieOptions() {
+export function csrfCookieOptions() {
   const secure = process.env.AUTH_SECURE_COOKIES === "true";
   return {
-    httpOnly: false,
+    httpOnly: false as const,
     secure,
     sameSite: "lax" as const,
     path: "/",
@@ -48,10 +48,15 @@ export async function createSession(userId: string, ip?: string, userAgent?: str
   await prisma.session.create({
     data: { id, userId, expiresAt, ip, userAgent },
   });
-  const store = await cookies();
-  store.set(SESSION_COOKIE, token, sessionCookieOptions());
-  store.set(CSRF_COOKIE, randomToken(16), csrfCookieOptions());
-  return token;
+  const csrf = randomToken(16);
+  return {
+    token,
+    csrf,
+    apply(res: { cookies: { set: (name: string, value: string, opts: object) => unknown } }) {
+      res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+      res.cookies.set(CSRF_COOKIE, csrf, csrfCookieOptions());
+    },
+  };
 }
 
 export async function destroySession() {

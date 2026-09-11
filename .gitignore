@@ -18,6 +18,10 @@
 /.embedded-pg
 /.embedded-pg-vitest
 /.embedded-pg-e2e
+/.embedded-pg-shots
+.test-env.json
+/.embedded-pg-vitest
+/.embedded-pg-e2e
 .test-env.json
 
 # next.js

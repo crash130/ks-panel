@@ -1,10 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 3101);
 
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: false,
+  workers: 1,
   retries: 0,
   timeout: 60_000,
   use: {

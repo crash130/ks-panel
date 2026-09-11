@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { BRAND } from "@/lib/brand";
 
 export const metadata = { title: "Pierwsza konfiguracja" };
+export const dynamic = "force-dynamic";
 
 export default async function SetupPage() {
   const count = await prisma.user.count();

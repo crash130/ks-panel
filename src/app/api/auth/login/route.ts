@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { createSession, verifyPassword, assertOrigin } from "@/lib/auth";
-import { isLoginRateLimited, recordLoginAttempt, loginRateLimitMessage } from "@/lib/rate-limit";
-import { clientIp, userAgent } from "@/lib/auth";
-import bcrypt from "bcryptjs";
+import { createSession, verifyPassword, assertOrigin, clientIp, userAgent } from "@/lib/auth";
+import { isLoginRateLimited, recordLoginAttempt } from "@/lib/rate-limit";
+import { redirectUrl } from "@/lib/http";
+
+const DUMMY_HASH = "$2b$10$DyeD5t7QxU7VRHKUlg1wqe4YZanXOD.BHXPLT0bd/PFbR5qMHI3Xi";
 
 export async function POST(request: Request) {
   try {
     await assertOrigin();
   } catch {
-    return NextResponse.redirect(new URL("/login?error=csrf", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/login?error=csrf"), 303);
   }
   const form = await request.formData();
   const email = String(form.get("email") ?? "")
@@ -21,20 +22,21 @@ export async function POST(request: Request) {
   const ua = await userAgent();
 
   if (await isLoginRateLimited(email, ip)) {
-    return NextResponse.redirect(new URL("/login?error=rate", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/login?error=rate"), 303);
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
-  const dummy = await bcrypt.hash("not-the-password", 10);
-  const ok = user ? await verifyPassword(password, user.passwordHash) : await verifyPassword(password, dummy);
+  const ok = await verifyPassword(password, user?.passwordHash ?? DUMMY_HASH);
 
   if (!user || !user.active || !ok) {
     await recordLoginAttempt(email, ip, false);
-    return NextResponse.redirect(new URL("/login?error=1", request.url), 303);
+    return NextResponse.redirect(redirectUrl(request, "/login?error=1"), 303);
   }
 
   await recordLoginAttempt(email, ip, true);
-  await createSession(user.id, ip, ua);
+  const session = await createSession(user.id, ip, ua);
   const dest = next.startsWith("/") && !next.startsWith("//") ? next : "/pulpit";
-  return NextResponse.redirect(new URL(dest, request.url), 303);
+  const res = NextResponse.redirect(redirectUrl(request, dest), 303);
+  session.apply(res);
+  return res;
 }

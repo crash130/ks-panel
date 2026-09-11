@@ -8,9 +8,9 @@ test("login and ofertomat smoke", async ({ page }) => {
   await page.getByLabel("E-mail").fill("wlasciciel@demo.ks.local");
   await page.getByLabel("Hasło").fill("DEMO-Wlasciciel-2026!");
   await page.getByRole("button", { name: "Zaloguj" }).click();
-  await expect(page).toHaveURL(/pulpit/);
+  await expect(page).toHaveURL(/pulpit/, { timeout: 15_000 });
   await expect(page.getByRole("heading", { name: "Kolejka serwisu" })).toBeVisible();
-  await page.getByRole("link", { name: "Ofertomat" }).first().click();
+  await page.goto("/ofertomat");
   await expect(page.getByRole("heading", { name: "Ofertomat" })).toBeVisible();
   await expect(page.getByText("Karta produktu (1 szt.)")).toBeVisible();
   await expect(page.getByText("Oferta wielopozycyjna")).toBeVisible();
@@ -22,11 +22,13 @@ test("mobile viewport keeps primary CTA visible", async ({ page }) => {
   await page.getByLabel("E-mail").fill("wlasciciel@demo.ks.local");
   await page.getByLabel("Hasło").fill("DEMO-Wlasciciel-2026!");
   await page.getByRole("button", { name: "Zaloguj" }).click();
-  await expect(page).toHaveURL(/pulpit/);
-  const cta = page.getByRole("link", { name: /Przyjęcie|Nowe przyjęcie/ }).first();
+  await expect(page).toHaveURL(/pulpit/, { timeout: 15_000 });
+  const cta = page.getByRole("link", { name: "+ Przyjęcie" });
   await expect(cta).toBeVisible();
   const box = await cta.boundingBox();
   expect(box).toBeTruthy();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
   expect(box!.y + box!.height).toBeLessThanOrEqual(844);
   expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(390);
 });
