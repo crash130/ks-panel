@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { encryptSecret, decryptSecret } from "@/lib/crypto";
+import { encryptSecret, decryptSecret, randomToken } from "@/lib/crypto";
 import { isJobOverdue } from "@/lib/status";
 import type { JobStatus, Prisma } from "@prisma/client";
 import { syncJobPickupEvent } from "@/lib/google-calendar";
@@ -30,6 +30,7 @@ export type IntakeInput = {
   notes?: string;
   technicianId?: string;
   promisedPickupAt?: Date | null;
+  smsConsentAt?: Date | null;
 };
 
 export async function createJob(input: IntakeInput) {
@@ -51,6 +52,8 @@ export async function createJob(input: IntakeInput) {
       notes: input.notes?.trim() || null,
       technicianId: input.technicianId || null,
       promisedPickupAt: input.promisedPickupAt ?? null,
+      publicStatusToken: randomToken(18),
+      smsConsentAt: input.smsConsentAt ?? null,
     },
   });
 

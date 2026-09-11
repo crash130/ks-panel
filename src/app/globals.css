@@ -90,6 +90,16 @@ textarea:focus {
   border-color: var(--color-primary);
 }
 
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border-radius: 0.3rem;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
 label.ks-label {
   display: block;
   font-size: 0.75rem;

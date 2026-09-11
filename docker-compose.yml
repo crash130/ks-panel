@@ -35,6 +35,13 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/calendar/callback}
       GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID:-primary}
+      SMS_PROVIDER: ${SMS_PROVIDER:-none}
+      SMS_API_TOKEN: ${SMS_API_TOKEN:-}
+      SMS_SENDER: ${SMS_SENDER:-}
+      SMSAPI_URL: ${SMSAPI_URL:-}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM: ${TWILIO_FROM:-}
     volumes:
       - ks_uploads:/app/uploads
 

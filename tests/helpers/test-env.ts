@@ -12,6 +12,7 @@ export function applyTestEnv(databaseUrl: string) {
   process.env.SESSION_SECRET = TEST_SESSION_SECRET;
   process.env.AUTH_SECURE_COOKIES = "false";
   process.env.GOOGLE_MOCK = "true";
+  process.env.SMS_PROVIDER = process.env.SMS_PROVIDER ?? "mock";
   process.env.SEED_DEMO_DATA = "true";
   process.env.APP_URL = process.env.APP_URL ?? "http://127.0.0.1:3100";
 }

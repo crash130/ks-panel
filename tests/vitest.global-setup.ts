@@ -19,6 +19,8 @@ export async function setup() {
       AUTH_SECURE_COOKIES: "false",
       GOOGLE_MOCK: "true",
       SEED_DEMO_DATA: "true",
+      SMS_PROVIDER: "mock",
+      APP_URL: process.env.APP_URL ?? "http://127.0.0.1:3100",
     }),
   );
   return async () => {

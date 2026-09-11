@@ -84,6 +84,40 @@ APP_URL=https://twoja-domena
 
 W testach automatycznych: `GOOGLE_MOCK=true` (bez sieci).
 
+## SMS — potwierdzenie przyjęcia
+
+Wielu klientów **nie chce papierowego protokołu**. Przyjęcie ma checkbox **„Wyślij potwierdzenie SMS”** (domyślnie włączony, można odznaczyć) oraz opcjonalnie **„Drukuj protokół po zapisie”**. Osobna zgoda RODO: SMS serwisowy (nie marketing).
+
+Po zapisie zlecenia SMS idzie przez warstwę dostawcy. **Nieudany SMS nie cofa zlecenia** — panel pokazuje błąd i daje druk PDF / `mailto:` jako zapas.
+
+Treść (krótki polski szablon): nazwa KS / komputerserwis.pl, skrót sprzętu, kod `KS-####`, obiecany odbiór (jeśli jest), telefon **505 825 047**, opcjonalny link statusu `/status/<token>` (losowy token, **nie** gołe id zlecenia). **PIN i hasło urządzenia nigdy nie trafiają do SMS.**
+
+### Dostawcy
+
+| `SMS_PROVIDER` | Zachowanie |
+|----------------|------------|
+| `none` (domyślnie) | Brak wysyłki. Jeśli recepcja zaznaczyła SMS, widać błąd i fallback druk/e-mail. **Nie udajemy sukcesu.** |
+| `smsapi` | [SMSAPI.pl](https://www.smsapi.pl/) — preferowane w PL. `SMS_API_TOKEN` (OAuth Bearer), opcjonalnie `SMS_SENDER` (nadawca trzeba zarejestrować w panelu SMSAPI). |
+| `twilio` | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` (E.164). |
+| `mock` | Testy (`SMS_MOCK=true` też włącza mock). `SMS_MOCK_FAIL=true` udaje awarię bramki. |
+
+Dziennik `SmsMessage`: numer, treść, status (`SENT` / `FAILED` / `SKIPPED`), nazwa dostawcy, id z bramki, błąd, czas. Ponowienie: przycisk **Ponów SMS** na karcie zlecenia (wymaga zgody RODO).
+
+### Koszt (orientacyjnie, SMSAPI Polska)
+
+Polskie znaki diakrytyczne (ą, ę, ó…) przełączają wiadomość na UCS-2: **70 znaków na segment** zamiast 160. Typowe potwierdzenie przyjęcia z linkiem statusu to **2–3 segmenty**.
+
+Cennik SMSAPI Eco (krajowe) bywa rzędu **ok. 0,11–0,16 zł / segment** — czyli **ok. 0,22–0,48 zł za jedno przyjęcie**. Sprawdź aktualny cennik w panelu SMSAPI. Nadawca alfanumeryczny (`SMS_SENDER=KS`) wymaga rejestracji; bez niego SMSAPI użyje domyślnego.
+
+W `.env`:
+
+```
+SMS_PROVIDER=smsapi
+SMS_API_TOKEN=...
+SMS_SENDER=KS
+APP_URL=https://twoja-domena
+```
+
 ## Bezpieczeństwo
 
 - Hasła: bcrypt (koszt 12).
@@ -91,6 +125,7 @@ W testach automatycznych: `GOOGLE_MOCK=true` (bez sieci).
 - CSRF: sprawdzane `Origin` + ciasteczko CSRF na mutacjach.
 - Logowanie: limit 5 nieudanych prób / 15 min (e-mail lub IP).
 - PIN i hasło urządzenia oraz tokeny Google: AES-256-GCM (`ENCRYPTION_KEY`).
+- Potwierdzenie SMS: bez PIN/hasła; publiczny status tylko przez losowy token (`/status/<token>`), nie przez id zlecenia.
 - Podgląd PIN/hasła: wpis w dzienniku audytu.
 - Nagłówki: nosniff, frame, referrer, permissions-policy, CSP; HSTS przy `AUTH_SECURE_COOKIES=true`.
 - Role: właściciel / recepcja / technik.
@@ -123,7 +158,7 @@ Rotacja: codzienny dump + retencja 14–30 dni. Po incydencie: nowy `SESSION_SEC
 ## Testy
 
 ```bash
-npm test          # Vitest: parser + auth/jobs
+npm test          # Vitest: parser + auth/jobs + SMS (mock)
 npx playwright install chromium
 npm run test:e2e  # logowanie, Ofertomat, viewport 390×844
 ```

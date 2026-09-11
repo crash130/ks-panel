@@ -183,6 +183,7 @@ async function main() {
         ...j,
         devicePinEnc: j.code === "KS-2601" ? pinEnc : null,
         issueDescription: j.issueDescription,
+        publicStatusToken: randomToken(18),
       },
     });
   }
@@ -201,6 +202,7 @@ async function main() {
       chargeGrosze: 58700,
       releasedAt: new Date(),
       technicianId: marek.id,
+      publicStatusToken: randomToken(18),
     },
   });
 

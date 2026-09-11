@@ -43,6 +43,12 @@ enum CalendarSyncStatus {
   ERROR
 }
 
+enum SmsStatus {
+  SENT
+  FAILED
+  SKIPPED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -92,12 +98,33 @@ model Job {
   googleEventId     String?
   calendarSync      CalendarSyncStatus @default(LOCAL_ONLY)
   calendarError     String?
+  publicStatusToken String     @unique
+  smsConsentAt      DateTime?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   releasedAt        DateTime?
+  smsMessages       SmsMessage[]
 
   @@index([status])
   @@index([promisedPickupAt])
+  @@index([createdAt])
+}
+
+model SmsMessage {
+  id         String    @id @default(cuid())
+  jobId      String
+  job        Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  to         String
+  body       String    @db.Text
+  purpose    String    @default("intake_confirm")
+  status     SmsStatus
+  provider   String
+  providerId String?
+  error      String?
+  createdAt  DateTime  @default(now())
+  sentAt     DateTime?
+
+  @@index([jobId])
   @@index([createdAt])
 }
 

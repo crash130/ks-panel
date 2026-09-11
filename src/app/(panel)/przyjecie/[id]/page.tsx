@@ -6,14 +6,28 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/format";
 import { JOB_STATUS_LABEL } from "@/lib/status";
 import { JobActions } from "@/components/JobActions";
+import { SmsFollowup } from "@/components/SmsFollowup";
 import type { JobStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function JobPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ sms?: string; smsError?: string; print?: string }>;
+}) {
   const user = await requireUser();
   const { id } = await params;
-  const job = await prisma.job.findUnique({ where: { id }, include: { technician: true } });
+  const sp = await searchParams;
+  const job = await prisma.job.findUnique({
+    where: { id },
+    include: {
+      technician: true,
+      smsMessages: { orderBy: { createdAt: "desc" }, take: 20 },
+    },
+  });
   if (!job) notFound();
   const techs = await prisma.user.findMany({
     where: { role: { in: ["TECHNICIAN", "OWNER"] }, active: true },
@@ -41,6 +55,10 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         <Row k="Termin odbioru" v={formatDate(job.promisedPickupAt)} />
         <Row k="Technik" v={job.technician?.name ?? "—"} />
         <Row
+          k="Zgoda SMS"
+          v={job.smsConsentAt ? `Tak (${formatDate(job.smsConsentAt)})` : "Nie"}
+        />
+        <Row
           k="Kalendarz Google"
           v={
             job.calendarSync === "SYNCED"
@@ -51,6 +69,26 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
           }
         />
       </div>
+      <SmsFollowup
+        jobId={job.id}
+        clientEmail={job.clientEmail}
+        clientName={job.clientName}
+        jobCode={job.code}
+        smsParam={sp.sms}
+        smsError={sp.smsError}
+        printParam={sp.print}
+        smsConsentAt={job.smsConsentAt ? job.smsConsentAt.toISOString() : null}
+        publicStatusToken={job.publicStatusToken}
+        messages={job.smsMessages.map((m) => ({
+          id: m.id,
+          to: m.to,
+          status: m.status,
+          provider: m.provider,
+          providerId: m.providerId,
+          error: m.error,
+          createdAt: m.createdAt.toISOString(),
+        }))}
+      />
       <JobActions
         jobId={job.id}
         status={job.status as JobStatus}

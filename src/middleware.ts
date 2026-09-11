@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/cookies";
 
 const PUBLIC =
-  /^\/(login|setup|oferta|api\/auth\/login|api\/health|api\/calendar\/callback|api\/files)(\/|$)/;
+  /^\/(login|setup|oferta|status|api\/auth\/login|api\/health|api\/calendar\/callback|api\/files)(\/|$)/;
 
 export function middleware(request: Request) {
   const url = new URL(request.url);

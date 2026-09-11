@@ -40,6 +40,8 @@ describe("auth + jobs integration", () => {
     expect(job.code).toMatch(/^KS-/);
     expect(job.devicePinEnc).toBeTruthy();
     expect(job.devicePinEnc).not.toContain("secret-pin-not-in-client");
+    expect(job.publicStatusToken).toBeTruthy();
+    expect(job.publicStatusToken).not.toBe(job.id);
     expect(revealDeviceSecret(job.devicePinEnc)).toBe("secret-pin-not-in-client");
     const stored = await prisma.job.findUnique({ where: { id: job.id } });
     expect(stored?.devicePinEnc).not.toContain("secret-pin-not-in-client");

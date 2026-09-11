@@ -15,6 +15,7 @@ async function main() {
     `SESSION_SECRET="${process.env.SESSION_SECRET}"`,
     `AUTH_SECURE_COOKIES="false"`,
     `GOOGLE_MOCK="true"`,
+    `SMS_PROVIDER="mock"`,
     `SEED_DEMO_DATA="true"`,
     `APP_URL="http://127.0.0.1:${port}"`,
   ].join("\n");
