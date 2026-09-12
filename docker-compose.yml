@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ks
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ks}
+      POSTGRES_DB: ks_panel
+    volumes:
+      - ks_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ks -d ks_panel"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://ks:${POSTGRES_PASSWORD:-ks}@db:5432/ks_panel?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:-docker-dev-session-secret-change-in-production-32}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+      AUTH_SECURE_COOKIES: ${AUTH_SECURE_COOKIES:-false}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-false}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/calendar/callback}
+      GOOGLE_CALENDAR_ID: ${GOOGLE_CALENDAR_ID:-primary}
+      SMS_PROVIDER: ${SMS_PROVIDER:-none}
+      SMS_API_TOKEN: ${SMS_API_TOKEN:-}
+      SMS_SENDER: ${SMS_SENDER:-}
+      SMSAPI_URL: ${SMSAPI_URL:-}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM: ${TWILIO_FROM:-}
+    volumes:
+      - ks_uploads:/app/uploads
+
+volumes:
+  ks_pgdata:
+  ks_uploads:
